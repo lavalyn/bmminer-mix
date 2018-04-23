@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <math.h>
-
+#include <stdlib.h>
 
 
 #ifndef WIN32
@@ -624,11 +624,14 @@ int getVoltageLimitedFromHashrate(int hashrate_GHz)
 int getFixedFreqVoltageValue(int freq)
 {
     int vol_value;
+
 #ifdef R4
     if(isC5_CtrlBoard)
         vol_value=890;
     else vol_value=910;
 #endif
+
+
 
 #ifdef S9_PLUS
     if(freq>=643)   // hashrate 12500
@@ -684,6 +687,21 @@ int getFixedFreqVoltageValue(int freq)
     else
         vol_value=930;
 #endif
+
+	char *override_vol_name = "BMMINER_OVERRIDE_VOLTAGE";
+	char *override_vol_value = getenv(override_vol_name);
+
+	if (override_vol_value) {
+		int override_final_num;
+		override_final_num = atoi(override_vol_value);
+		if (override_final_num >= 300 && override_final_num <= 940) {
+			printf("Voltage override applied: was %d, now using %d\n", vol_value, override_final_num);
+			vol_value = override_final_num;
+		} else {
+			printf("Invalid voltage override provided: %s, using %d\n", override_vol_value, vol_value);
+		}
+	}
+
 
     return vol_value;
 
@@ -7258,7 +7276,7 @@ void set_Hardware_version(unsigned int value)
 
 #ifndef DISABLE_TEMP_PROTECT
             if(diff.tv_sec > 120 || dev->temp_top1[TEMP_POS_LOCAL] > MAX_PCB_TEMP // we use pcb temp to check protect or not
-               || cur_fan_num < MIN_FAN_NUM /*|| dev->fan_speed_top1 < (MAX_FAN_SPEED * dev->fan_pwm / 150) */ )
+              /* || cur_fan_num < MIN_FAN_NUM || dev->fan_speed_top1 < (MAX_FAN_SPEED * dev->fan_pwm / 150) */ )
             {
                 fatal_error_counter++;
 
