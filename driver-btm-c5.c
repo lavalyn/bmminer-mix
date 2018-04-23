@@ -694,7 +694,7 @@ int getFixedFreqVoltageValue(int freq)
 	if (override_vol_value) {
 		int override_final_num;
 		override_final_num = atoi(override_vol_value);
-		if (override_final_num >= 300 && override_final_num <= 940) {
+		if (override_final_num >= 794 && override_final_num <= 940) {
 			printf("Voltage override applied: was %d, now using %d\n", vol_value, override_final_num);
 			vol_value = override_final_num;
 		} else {
